@@ -1,6 +1,10 @@
+%%writefile app.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import os
+os.chdir('Desktop\Epsilon Data Analysis With Python Project')
+
 # 1. Page Configuration
 st.set_page_config(
     page_title="Riyadh Cardiorespiratory Dashboard",
