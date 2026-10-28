@@ -1,3 +1,4 @@
+%%writefile app.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -18,7 +19,7 @@ st.markdown("""
         [data-testid="stSidebar"] {
             background-color: #038C4C;
         }
-
+        
         /* جعل جميع النصوص والعناوين داخل الشريط الجانبي باللون الأبيض لضمان الوضوح */
         [data-testid="stSidebar"] h1, 
         [data-testid="stSidebar"] h2, 
@@ -28,7 +29,7 @@ st.markdown("""
         [data-testid="stSidebar"] span {
             color: #FFFFFF !important;
         }
-
+        
         /* تعديل ألوان عناصر الإدخال والفلاتر لتناسب الخلفية الخضراء */
         [data-testid="stSidebar"] .stMultiSelect div[data-baseweb="select"] {
             background-color: #ffffff !important;
@@ -64,7 +65,7 @@ except Exception as e:
     st.error(f"Error loading dataset file or incorrect path. Details: {e}")
     st.stop()
 # 5. Sidebar Navigation, Logo, and Global Filters
-
+ 
 st.image("d391a6caec964af6.jpeg", use_container_width=True)
 st.sidebar.image("MOH-1.png", use_container_width=True)
 st.sidebar.title( "Dashboard Navigation")
@@ -101,15 +102,15 @@ if filtered_df.empty:
 if page == "📊 Overview & KPIs":
     st.markdown(f"<h1 style='color: {PRIMARY_GREEN};'>📊 Overview & Key Performance Indicators</h1>", unsafe_allow_html=True)
     st.markdown("An interactive dashboard summarizing cardiorespiratory hospital admissions in Riyadh.")
-
+    
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Admissions", f"{filtered_df['admission_count'].sum():,}")
     col2.metric("Avg Length of Stay (Days)", f"{filtered_df['length_of_stay_avg'].mean():.1f}")
     col3.metric("Total Readmissions", f"{filtered_df['readmission_count'].sum():,}")
     col4.metric("Active Hospitals", len(filtered_df['hospital_name'].unique()))
-
+    
     st.markdown("---")
-
+    
     c1, c2 = st.columns(2)
     with c1:
         fig_pie = px.pie(
@@ -119,7 +120,7 @@ if page == "📊 Overview & KPIs":
         )
         fig_pie.update_layout(plot_bgcolor='white', paper_bgcolor='white')
         st.plotly_chart(fig_pie, use_container_width=True)
-
+        
     with c2:
         hosp_grouped = filtered_df.groupby('hospital_name')['admission_count'].sum().reset_index()
         fig_bar = px.bar(
@@ -136,11 +137,11 @@ if page == "📊 Overview & KPIs":
 elif page == "📈 Temporal & Seasonal Analysis":
     st.markdown(f"<h1 style='color: {PRIMARY_GREEN};'>📈 Temporal & Seasonal Admissions Analysis</h1>", unsafe_allow_html=True)
     st.markdown("Track hospital admission trends across years, months, hours, and seasons.")
-
+    
     if 'Year' not in filtered_df.columns:
         filtered_df['Year'] = filtered_df['admission_date'].dt.year
     yearly_trend = filtered_df.groupby('Year')[['admission_count', 'emergency_visit_count']].sum().reset_index()
-
+    
     fig_pattern = px.line(
         yearly_trend, x='Year', y=['admission_count', 'emergency_visit_count'], 
         color_discrete_sequence=[PRIMARY_GREEN, GOLD_ACCENT], markers=True,
@@ -148,7 +149,7 @@ elif page == "📈 Temporal & Seasonal Analysis":
     )
     fig_pattern.update_layout(xaxis=dict(tickmode='linear', dtick=1), plot_bgcolor='white', paper_bgcolor='white')
     st.plotly_chart(fig_pattern, use_container_width=True)
-
+    
     if 'seasonal_indicator' in filtered_df.columns:
         fig_season = px.bar(
             filtered_df, x='seasonal_indicator', y='admission_count', color='condition_type',
@@ -157,7 +158,7 @@ elif page == "📈 Temporal & Seasonal Analysis":
         )
         fig_season.update_layout(plot_bgcolor='white', paper_bgcolor='white')
         st.plotly_chart(fig_season, use_container_width=True)
-
+    
     c1, c2 = st.columns(2)
     with c1:
         filtered_df['Month'] = filtered_df['admission_date'].dt.month_name()
@@ -168,7 +169,7 @@ elif page == "📈 Temporal & Seasonal Analysis":
         )
         fig_month.update_layout(plot_bgcolor='white', paper_bgcolor='white')
         st.plotly_chart(fig_month, use_container_width=True)
-
+        
     with c2:
         if 'admission_hour' in filtered_df.columns:
             hourly_pattern = filtered_df.groupby('admission_hour')['admission_count'].mean().reset_index()
@@ -185,9 +186,9 @@ elif page == "📈 Temporal & Seasonal Analysis":
 elif page == "🏥 Hospital & Emergency Analysis":
     st.markdown(f"<h1 style='color: {PRIMARY_GREEN};'>🏥 Hospital Performance & Emergency Visits</h1>", unsafe_allow_html=True)
     st.markdown("Detailed comparison of admissions, emergency visits, and length of stay across hospitals.")
-
+    
     hospital_summary = filtered_df.groupby('hospital_name')[['admission_count', 'emergency_visit_count', 'length_of_stay_avg']].mean().reset_index()
-
+    
     fig_hosp = px.bar(
         hospital_summary, x='hospital_name', y=['admission_count', 'emergency_visit_count'],
         barmode='group', color_discrete_sequence=[PRIMARY_GREEN, GOLD_ACCENT],
@@ -195,7 +196,7 @@ elif page == "🏥 Hospital & Emergency Analysis":
     )
     fig_hosp.update_layout(plot_bgcolor='white', paper_bgcolor='white')
     st.plotly_chart(fig_hosp, use_container_width=True)
-
+    
     fig_hosp_len = px.bar(
         hospital_summary, x='hospital_name', y='length_of_stay_avg',
         color_discrete_sequence=[LIGHT_GREEN],
@@ -210,7 +211,7 @@ elif page == "🏥 Hospital & Emergency Analysis":
 elif page == "👥 Patient Demographics & Severity":
     st.markdown(f"<h1 style='color: {PRIMARY_GREEN};'>👥 Patient Demographics & Epidemiological Insights</h1>", unsafe_allow_html=True)
     st.markdown("Explore patient age groups, gender breakdowns, and condition severity levels.")
-
+    
     if 'patient_age_group' in filtered_df.columns and 'severity_level' in filtered_df.columns:
         fig_severity = px.bar(
             filtered_df, x='patient_age_group', y='admission_count', color='severity_level',
@@ -237,7 +238,7 @@ elif page == "👥 Patient Demographics & Severity":
 elif page == "🔍 Outliers Analysis":
     st.markdown(f"<h1 style='color: {PRIMARY_GREEN};'>🔍 Outliers Analysis</h1>", unsafe_allow_html=True)
     st.markdown("Identify extreme values and outliers in admissions, readmissions, and length of stay variables.")
-
+    
     c1, c2 = st.columns(2)
     with c1:
         fig_box1 = px.box(
@@ -246,7 +247,7 @@ elif page == "🔍 Outliers Analysis":
         )
         fig_box1.update_layout(plot_bgcolor='white', paper_bgcolor='white')
         st.plotly_chart(fig_box1, use_container_width=True)
-
+        
     with c2:
         fig_box2 = px.box(
             filtered_df, y="readmission_count", 
@@ -254,7 +255,7 @@ elif page == "🔍 Outliers Analysis":
         )
         fig_box2.update_layout(plot_bgcolor='white', paper_bgcolor='white')
         st.plotly_chart(fig_box2, use_container_width=True)
-
+        
     fig_box3 = px.box(
         filtered_df, x="hospital_name", y="length_of_stay_avg", color="hospital_name",
         title="Average Length of Stay Distribution per Hospital and Outlier Detection",
